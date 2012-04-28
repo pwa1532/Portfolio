@@ -1,0 +1,70 @@
+{% extends "_base.html" %}
+{% block title %}
+	Email Visualization
+{% endblock %}
+{% block bodycontent %}
+	<div id="single_project" class="content_wrapper">
+		<div>
+			<h1>Email Visualization</h1>
+		</div>
+		<div>
+			<h2>SI 649 - Information Visualization</h2>
+		</div>
+		<div>	
+			<div class="section_head">
+				About the class
+			</div>
+			<div>
+				SI649 is designed to teach students about different aspects of visualizing information. Through a series of 
+				lectures, discussions and design exercises students learn all about the various static, dynamic and interactive
+				methods people have used to visualize information and understand when, where and why they work.
+			</div>
+			<br/>
+			<div class="section_head">
+				Email visualization project
+			</div>
+			<div>
+				During the second half of the course, students are broken into small teams of three and build their own 
+				visualization. The topic my team choose to visualize is SI.ALL.OPEN, and opt-out open email list our graduate 
+				program uses that covers everything from notifying students there is free food to in 80 reply long threads about
+				speeding tickets and gender pronouns (true story). My team wanted to better understand the makeup of the users
+				of the list and what, if any, patterns were involved in its use. After spending some time discussing the system
+				and researching other visualizations, my team decided to break the data along two dimensions, the groups who 
+				generated the messages (into students, administrators, and external sources) and general categories they fell into (food,
+				spam, job posting, advice, etc). We then used a combination of a starburst and stacked bar graph to illustrate who post
+				the message and all the replies.
+			</div>
+			<br/>
+			<a href="infovisproj/gradient.html">
+				<img style="margin:0px auto 10px auto;width:450px;" title="Email Visualizaiton" src="static/infovis.GIF">
+			</a>
+			<br/>
+			<div>
+				<a href="infovisproj/gradient.html">
+					Click here to use the visualization for yourself
+				</a> 
+				and see what you think. Note that this does not work in IE, try Chrome or Mozilla (untested in Safari).
+			</div>
+			<br/>
+			<div>
+				After several round of prototyping and alterations, we finally ended up with two visualizations that varies
+				in how we used color to represent data. The first used hues to encode the group each email belonged to with
+				variants within a hue to dictate the subgroup it belonged to. The second used more diverse and therefore distinct
+				colors only to separate subgroups but was easier to distinguish. We presented the visualizations to a series of 
+				students to determine if A) they could understand and use the visualization and B) if they did like the visualization, 
+				which of the two color schemes made more sense to them. The results were a smashing success with many fellow users enjoying
+				using it and in fact getting very distracted exploring the data.
+			</div>
+			<br/>
+			<div class="section_head">
+				Since then
+			</div>
+			<div>
+				Though the initial version was a success, the short time span we had to create the system left the controls of 
+				the original display cluttered and cumbersome. As a result I have since modified the visualization with a
+				slightly cleaner interface, though more work could be done.
+			</div>
+			<br/>
+		</div>
+	</div>
+{% endblock %}

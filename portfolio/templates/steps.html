@@ -1,0 +1,53 @@
+{% extends "_base.html" %}
+{% block title %}
+	Steps
+{% endblock %}
+{% block bodycontent %}
+	<div id="single_project" class="content_wrapper">
+		<div>
+			<h1>Steps Facebook application</h1>
+		</div>
+		<div>
+			<h2>Research</h2>
+		</div>
+		<div>	
+			<img style="float:left;margin:0px 10px 0px 0px;width:250px;" title="html5 slider loading data into graph" src="static/steps_g.JPG">
+			<span>
+				Steps is a facebook application build as part of an exploratory research project created at the 
+				University of Michigan School of Information. The purpose of the project was to create a platform
+				from which many hypotheses could be created and tested. The inital phase of the project was a simple
+				proof of concept where a Facebook app was created with various Facebook social widgets such as a wall.
+				Then I handed the project off to a PHD candidate as the summer ended and I returned to my studies.
+			</span>
+			<br/>
+			<br/>
+			<span>
+				At the end of the school year I returned to the project, which had change drastically. An entire sytem had been built including
+				our own rendition of a newsfeed and user profile. The project was handed back to me where I continued to work on it for the next year.
+			</span>
+			<br/>
+			<br/>
+			<img style="float:right;margin:0px 0px 10px 10px;width:350px;" title="Our version of a Facebook wall" src="static/steps_w.JPG">
+			<span>
+				In terms of technical standpoint, the app was created with using php and mysql on an apache server as the backend. This started making calls 
+				to the facebook RESTful server before transfering to the graph API. The front-end was a combination of html, fbml (facebooks markup language
+				used to render various Facebook components  such as a newsfeeds, profile pics, etc before being phased out by its new APIs), css,
+				javascript using jquery, a little html5 (html5 was relativly new and not well supported at the time) and an independed graph library.
+			</span>
+			<br/>
+			<br/>
+			<span>
+				Many of the components from that version of the app still exists they had to be drastically changed and fixed and uese relativly little
+				of their original code. This was one of the biggest challenged I face during the project. The person who worked on the project while I was
+				away was a skilled coder but his code was impossible to read and never documented. Much of my time was spent debugging, refactoring, and 
+				improving his code. One of my greatest accomplishments on this project was creating a standard way to access the database with a database object
+				rather then the SQL queries scattered throughout the code. This also allowed a single point of access where security could be maintained.
+			</span>
+			<br/>
+			<br/>
+			<span>
+				The project has since been handed off to another student where work continues on the sytem which has been launched since my departure.
+			</span>
+		</div>
+	</div>
+{% endblock %}

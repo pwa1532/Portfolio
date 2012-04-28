@@ -1,0 +1,33 @@
+
+.box {
+    margin: 0 auto;
+    height: 550px;
+    width: 850px;
+    position: relative;
+}
+
+#box {
+  overflow: auto;
+  position: relative;
+}
+
+h2 {
+	background-image:url(../img/h2.png);
+  margin: 0 auto;
+  position: relative;
+  opacity: 1;
+  width:850px;
+  padding: 3px 3px 3px 20px;
+  color: #fff;
+  border-bottom:dotted;
+  border-bottom-width:1px;
+}
+
+#box p {
+  margin: 10px;
+}
+
+/* JS required styles */
+.box .box {
+    border: 0;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>MoodLighting</title> 
+		<meta name="viewport" content="width=device-width, initial-scale=1"> 
+		<link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />
+		<script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+		<script src="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.js"></script>
+	</head>
+	<body>
+		<div data-role="page">
+			<div data-role="header">
+				<h1>MoodLighting</h1>
+			</div>
+			<div data-role="content">
+				{% for thing in all %}
+						<span>
+							{% ifequal thing.user 1 %} Peter {% endifequal %}
+							{% ifequal thing.user 2 %} Brian {% endifequal %}
+							{% ifequal thing.user 3 %} Killian {% endifequal %}
+							{% ifequal thing.user 4 %} Jenny {% endifequal %}
+							{% ifequal thing.user 5 %} Ann {% endifequal %}
+							,
+							{{ thing.time }}
+							,
+							{{ thing.mood }}
+							,
+							{{ thing.light }}
+							,
+							{% ifequal thing.door 1 %} Indoor {% endifequal %}
+							{% ifequal thing.door 2 %} Outdoor {% endifequal %}
+						</span>
+						<br/>
+				{% endfor %}
+			</div>
+		</div>
+	</body>
+</html>

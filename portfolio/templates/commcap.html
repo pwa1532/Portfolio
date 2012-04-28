@@ -1,0 +1,63 @@
+{% extends "_base.html" %}
+{% block title %}
+	Community Capture
+{% endblock %}
+{% block bodycontent %}
+	<div id="single_project" class="content_wrapper">
+		<div>
+			<h1>Community Capture</h1>
+		</div>
+		<div>
+			<h2>Educ 602 - Videogames, Learning & School Design</h2>
+		</div>
+		<div>	
+			<div class="section_head">
+				Coure Overview
+			</div>
+			<div>
+				Videogames, Learning & School Design was an intersted class, housed in the school of education, that mainly dealt with 
+				how game mechanics can be applied to everyday life, specifically school. The main reading for the course was James Gee's
+				"What Video Games Have to Teach Us about Learning and Literacy" but the class was basically "Reality is Broken" the course.
+			</div>
+			<br/>
+			<div class="section_head">
+				The Game
+			</div>
+			<div>
+				During the second half of the semester we broken into groups and designed games. After a couple of iterations, my group decided
+				on a game called Community Capture. Community Capture is a augmented reality smartphone game played throughout a city by high schoool age students
+				that aims at teaching them about their local community, government and culture. The game is a cross between risk and a scavenger hunt
+				that involves teams of stuents traveling around their community attempting to capture locations by find its "capture point" and using 
+				either GPS or the camera to prove they were at the location. In order the find the capture point the team must travel to various "hints"
+				that contain facts about the hints location with information about the capture point hidden within. These facts can come in the form of
+				text, video, pictures, or any other form of media a smartphone supports. Teams must travel to the various
+				locations on the map and interpret the hints in order to find the capture points. When a team captures the entire map (of which each teams
+				has their own map and are not competing for the same lopcations, just time), they win.
+			</div>
+			<br/>
+			<a href="static/LogicModel.gif">
+				<img style="margin:0px auto 0px auto;width:650px;" title="Logic Model" src="static/LogicModel.gif">
+			</a>
+			<br/>
+			<div class="section_head">
+				The twist
+			</div>
+			<div>
+				In order to make the game a little more challenge the players, one person (a teacher or other non-player) acts as a bandit. This persons 
+				also travels around the community but instead of trying to capture locations, they try and steal them from other teams. When the bandit 
+				arrives at a location a notification is sent to the team that the bandit is trying to steal it. The team then has a change the thwart the 
+				by answer questions about the region. All the information they need to answer the questions was given in the hints and capture point but
+				not directly. Teams must talk about what they learned and interpret the facts in order the answer the questions. If they fail to answer 
+				enough of the questions right, they keep the region, if not they must travel back to the location and recapture it.
+			</div>
+			<br/>
+			<div class="section_head">
+				More Info
+			</div>
+			<div>
+				This is just a brief description of the game and its basic mechanics but leaves a lot to the imagination. For a full report on the
+				game and the mechanisms behind it you can read the report <a href="static/CommunityCapture.pdf">here</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}

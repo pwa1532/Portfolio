@@ -1,0 +1,37 @@
+{% extends "_base.html" %}
+{% block title %}
+About
+{% endblock %}
+{% block bodycontent %}
+	<div class="contact">
+		<div class="content_wrapper">
+			<div style="width:280px;margin:10px;display:inline-block;vertical-align:top;">
+			<!-- the left half -->
+				<div class="green" style="font-size:24px;margin-bottom:10px;">Send Me A Message</div>
+				<form>
+					<div class="contact_header">Email Address:</div><input class="input" id="email" type="text" value="you@email.com" style="margin-bottom:5px;width:270px;border:2px solid #D1D1D1;"/><br/>
+					<div class="contact_header">Subject</div><input class="input" id="subject" type="text" value="Hey!" style="margin-bottom:5px;width:270px;border:2px solid #D1D1D1;"/><br/>
+					<div class="contact_header">Message</div><textarea class="input" id="message" style="margin-bottom:5px;height:100px;width:270px;border:2px solid #D1D1D1;">I want to hire you!</textarea><br/><!-- the contact form -->
+					<div style="width:266px;text-align:center;" id="send_message" class="button">Send Message</div>
+				</form>
+			</div>
+			<div id="sns" style="width:404px;margin:10px 10px 10px 10px;display:inline-block;vartical-align:top;">
+				<div class="green" style="font-size:24px;margin-bottom:10px;">Contact Me Another Way</div>
+				<div style="margin-bottom:5px;">You can also send me a message through any of my various social networks.</div><!-- the right half -->
+				<a href="mailto:pwa1532@gmail.com">
+					<img src="static/gmail.png">
+				</a>
+				<a href="http://www.linkedin.com/pub/peter-andrews/19/325/b46">
+					<img src="static/linkedin.png">
+				</a>
+				<a href="https://plus.google.com/102631629592426235183/posts">
+					<img src="static/google+color.png">
+				</a>
+				<a href="http://www.facebook.com/pwandrew">
+					<img src="static/facebook.png">
+				</a>
+			</div>
+		</div>
+	</div>
+	<div style="clear:both;"></div>
+{% endblock %}

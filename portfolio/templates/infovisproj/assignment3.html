@@ -1,0 +1,674 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+	<title></title>
+	<script type="text/javascript" src="static/protovis.js"></script>
+	<script type="text/javascript" src="static/json_data.js"></script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-latest.pack.js"></script>
+	<script type="text/javascript" src="static/jquery.tipsy.js"></script>
+	
+	<script type="text/javascript" src="static/jquery-ui-1.7.1.custom.min.js"></script>
+	<script type="text/javascript" src="static/selectToUISlider.jQuery.js"></script>
+	<link rel="stylesheet" href="static/jquery-ui-1.7.1.custom.css" type="text/css" />
+	<link rel="Stylesheet" href="static/ui.slider.extras.css" type="text/css" />
+	
+	<script src="static/tipsy.js" type="text/javascript"></script>
+	<link href="static/tipsy.css" type="text/css" rel="stylesheet"/>
+</head>
+
+<body style="margin:0px;">
+	<TABLE>
+		<TR>
+			<TD valign=TOP>
+				<DIV ID="vis">
+<script type="text/javascript+protovis">
+	//$('select#valueAA, select#valueBB').selectToUISlider({
+	//	labels: 0,
+	//	sliderOptions: {
+	//		change:function(e, ui) {
+	//			changeIt();
+	//		}
+	//	} 
+	//});
+	$('select#valueA, select#valueB').selectToUISlider({
+		labels: 0,
+		sliderOptions: {
+			change:function(e, ui) {
+				changeIt();
+			}
+		} 
+	});
+	
+	$("#valueA").live('change',function(){console.log('here');});
+	$("#valueB").live('change',changeIt);
+// used to capture the mouse location for rendering the tipsy mouseover tooltip
+mouseX = 0;
+mouseY = 0;
+$(document).mousemove(function(e){
+	mouseX = e.clientX;
+	mouseY = e.clientY;
+	var curr_tipsy = $("body > div");
+	if(curr_tipsy.length > 0){
+	
+		console.log(curr_tipsy.length);
+		if (curr_tipsy.length > 1){
+			$("body > div:last").remove();
+		}
+		var curr_tipsy = $("body > div");
+		curr_tipsy[0].style.left = mouseX + 10;
+		curr_tipsy[0].style.top = mouseY - ($("body > div:first").height() / 2);
+	}
+});
+
+// height, width and radius of the vis
+var w = 650,   // width of the panel
+    h = 650,   // height of the panel
+    r = w/2-15;   // radius is half the width
+	
+var seg_rad = 7; // how tall each section should be.
+var seg_width = 0; // this is how wide (in radians) each sections should be, this is set each time through
+var number_layers = 0; // how many layers there are
+
+// this is the data in its original form. it should never be altered, just replicated
+var order = false;
+
+//this is an array that will hold the data that gets manipulated
+data = [];
+
+// a series of variables that determine what data should be shown.
+var tags_to_show = ["job", "announcement", "spam", "article", "advice/suggestion", "food", "academic"];
+var subgroups_to_show = ['Undergrad','PhD','HCI','SC','LIS','ARM','PI','CI','IPOL','TAL','IAR', 'HI', 'IEM', 'Staff', 'Faculty', 'Alumni', 'Other'];
+
+var min_length = 1;
+var max_length = 30;
+var name = "";
+var names_group = "";
+var highlight = false;
+
+// how big the center is
+var center_width = 90;
+var subgroup_width = 50;
+var middle_rad = center_width + subgroup_width;
+
+// what to color all the data
+var segment_color = "white";
+var tag_color = "rgb(150, 150, 150)";
+var group_color = "rgb(150, 150, 150)";
+var highlight_color = "white";
+var color_group = {	'HCI':[250, 0, 0],
+					'SC':[200, 0, 0], 
+					'LIS':[150, 0, 0], 
+					'ARM':[250, 200, 0], 
+					'PI':[250, 150, 0],
+					'CI':[250, 0, 200],
+					'IPOL':[250, 0, 150],
+					'TAL':[250, 200, 200],
+					'IAR':[250, 200, 150],
+					'HI':[250, 150, 200],
+					'IEM':[250, 150, 150],
+					'Undergrad':[200, 150, 0],
+					'PhD':[200, 0, 150],
+					'Staff':[0, 250, 0],
+					'Faculty':[0, 150, 0],
+					'Alumni':[0, 0, 250],
+					'Other':[0, 0, 150]};
+					
+var tag_to_image = {'job':"tag.jpg", 'announcement':"tag2.jpg", 'spam':"tag3.jpg", "article":"tag.jpg", "advice/suggestion":"tag2.jpg", "food":"tag3.jpg", "academic":"tag.jpg"};
+
+// holders for the legend
+var legend_name;
+var legend_subject;
+
+// the visualization panel
+var vis = new pv.Panel().width(w).height(h).fillStyle("white");
+
+// this renders all the visualization
+function render_vis(){
+	vis.children = [];
+	vis.render();
+	reset_display_data();
+	filter_by_tag();
+	filter_by_subgroup();
+	filter_by_length();
+	remove_empty_sections();
+
+	number_layers = data.length;
+	seg_width = (2 * Math.PI) / data[0].length;
+
+	var i = number_layers;
+	vis.add(pv.Panel)
+		.data(data)
+		.add(pv.Wedge)
+			.data(function(d) {i--; return d})
+			.left(w/2)
+			.bottom(h/2)
+			.strokeStyle(function(d) { if(d[0] == 0){ return "white"; } return segment_color; })
+			.fillStyle(function(d) {if(d[0] == 0){ return "white"; } if(highlight && d[1] != name){ return get_color(d[3], false)} return get_color(d[3], true)})
+			.outerRadius(function() middle_rad + (seg_rad * (i + 1)))
+			.innerRadius(function() middle_rad + (seg_rad * i))
+			.angle(seg_width)
+			.text(function(d) {if(d[0] == 1){return d[1] + " \n " + d[5];}else { return "";}})
+			.event("click", function(d) {if(d[0] == 1){if(highlight && name == d[1]){highlight = false;}else{highlight = true;name = d[1]; names_group = d[3];} render_vis();}})
+			.event("mouseover",  pv.Behavior.tipsy({gravity: "w", fade: true}));
+	
+	tag_lines();
+	render_subgroups();
+	render_groups();
+	group_lines();
+	//generate_tag_icons();
+	
+	vis.add(pv.Bar)
+    .data(color_group)
+    .bottom(function(d) this.index * 12)
+    .height(10)
+    .width(10)
+    .left(5)
+    .fillStyle(function(d) get_color(d, false)
+    .lineWidth(null)
+  .anchor("right").add(pv.Label)
+    .textAlign("left")
+    .text(function(d) "something");
+	
+	vis.render();
+}
+
+render_vis();
+// add a wedge to the panel, this will create one for each array in the panels data
+
+// turns polar to cartisian
+function getLine(rads, dist){
+	var x = dist * Math.sin(rads);
+	var y = dist * Math.cos(rads);
+	return [x, y];
+}
+
+// renders the lines for the groups
+function group_lines(){
+	var line_width = 2;
+
+	var curr_group = data[data.length - 1][0][4];
+	for(var i = 0; i < data[data.length - 1].length + 1; i++){
+		var curr_data = data[data.length - 1][i % data[0].length];
+		if(curr_data[4] != curr_group){
+			var cart = getLine(seg_width * i, r);
+			var x1 = cart[0];
+			var y1 = cart[1];	
+			vis.add(pv.Line)
+				.data([[w/2 + x1, h/2 + y1], [w/2, h/2]])
+				.bottom(function(d) d[1])
+				.left(function(d) d[0])
+				.strokeStyle(group_color)
+				.lineWidth(line_width);			
+			
+			curr_group = curr_data[4];
+		}
+	}
+}
+
+// renders the lines for the tags
+function tag_lines(){
+	var curr_tag = data[data.length - 1][0][2];
+	var curr_group = data[data.length - 1][0][3];
+	for(var i = 0; i < data[data.length - 1].length + 1; i++){
+		var curr_data = data[data.length - 1][i % data[0].length];
+		if(curr_data[2] != curr_tag || curr_data[3] != curr_group){
+			var cart = getLine(seg_width * i, r);
+			var x1 = cart[0];
+			var y1 = cart[1];	
+			var cart = getLine(seg_width * i, middle_rad);
+			var x2 = cart[0];
+			var y2 = cart[1];	
+			vis.add(pv.Line)
+				.data([[w/2 + x1, h/2 + y1], [w/2 + x2, h/2 + y2]])
+				.bottom(function(d) d[1])
+				.left(function(d) d[0])
+				.strokeStyle(tag_color);			
+			
+			curr_tag = curr_data[2];
+			curr_group = curr_data[3];
+		}
+	}
+}
+
+// render the groups in the center
+function render_groups(){
+		var group_data = [];
+	var curr_group = data[data.length - 1][0][4];
+	var counter = 0;
+	var total = 0;
+	for(var i = 0; i < data[data.length - 1].length; i++){
+		var curr_data = data[data.length - 1][i];
+		if(curr_data[4] != curr_group){
+			group_data.push([counter, curr_group]);
+			total += counter;
+			counter = 1;
+			curr_group = curr_data[4];
+		} else {
+			counter++;
+		}
+	}
+	group_data.push([data[0].length - total, curr_group]);
+
+	var super_array = [];
+	super_array.push(group_data);
+	vis.add(pv.Panel)
+		.data(super_array)
+		.add(pv.Wedge)
+			.data(function(d) d)
+			.left(w/2)
+			.bottom(h/2)
+			.strokeStyle(segment_color)
+			.fillStyle("#CCC")
+			.outerRadius(center_width)
+			.angle(function(d) seg_width * d[0])
+			.text(function(d) d[1])
+			.event("mouseover", pv.Behavior.tipsy({gravity: "w", fade: true}));
+}
+
+// renders the subgroups (second layer)
+function render_subgroups(){
+	var group_data = [];
+	var curr_group = data[data.length - 1][0][3];
+	var counter = 0;
+	var total = 0;
+	for(var i = 0; i < data[data.length - 1].length; i++){
+		var curr_data = data[data.length - 1][i];
+		if(curr_data[3] != curr_group){
+			group_data.push([counter, curr_group]);
+			total += counter;
+			counter = 1;
+			curr_group = curr_data[3];
+		} else {
+			counter++;
+		}
+	}
+	
+	group_data.push([data[0].length - total, curr_group]);
+	var super_array = [];
+	super_array.push(group_data);
+	vis.add(pv.Panel)
+		.data(super_array)
+		.add(pv.Wedge)
+			.data(function(d) d)
+			.left(w/2)
+			.bottom(h/2)
+			.strokeStyle(segment_color)
+			.lineWidth(0)
+			.fillStyle(function(d) {if(d[0] == 0){return "black"; } if(highlight && d[1] != names_group){ return get_color(d[1], false)} return get_color(d[1], true)})
+			.outerRadius(middle_rad)
+			.angle(function(d) seg_width * d[0])
+			.text(function(d) d[1])
+			.event("mouseover", pv.Behavior.tipsy({gravity: "w", fade: true}));
+}
+
+// renders the images around the outside of the visualization for the tags
+function generate_tag_icons() {
+	var total_angle = 0;
+	var angles = [];
+	var number_segments = 0;
+	
+	var curr_tag = data[data.length - 1][0][2];
+	curr_group = data[data.length - 1][0][3];
+	for(var i = 0; i < data[data.length - 1].length + 1; i++){
+		var curr_data = data[data.length - 1][i % data[0].length];
+		if(curr_data[2] != curr_tag || curr_data[3] != curr_group){
+			angles.push([total_angle + (number_segments / 2 * seg_width), curr_tag]);
+			total_angle += (number_segments * seg_width);
+			curr_tag = curr_data[2];
+			curr_group = curr_data[3];
+			number_segments = 1;
+		} else	{
+			number_segments++;
+		}
+	}
+
+	for(var k = 0; k < angles.length; k++){
+		var curr_angle = angles[k];
+		var cart = getLine(curr_angle[0], r);
+		var x1 = cart[0] - 7.5;
+		var y1 = cart[1] - 7.5;
+		vis.add(pv.Mark)
+			.height(15)
+			.width(15)
+			.left(w/2 + x1)
+			.bottom(h/2 + y1)
+			.add(pv.Image)
+				.url(tag_to_image[curr_angle[1]])
+				.event("mouseover", function() {console.log(this); this.imageWidth(20); this.imageHeight(20);this.render();});
+	}
+}	
+
+// resets data to goodData
+function reset_display_data(){
+	data = [];
+	var data_to_use = goodData;
+	if(order){
+		data_to_use = sortData;
+	}
+	//generates a deep copy of the original and sets all valid data to be shown.
+	for(var i = 0; i < data_to_use.length; i++){
+		data[i] = [];
+		for(var k = 0; k < data_to_use[i].length; k++){
+			data[i][k] = [];
+			if(data_to_use[i][k].length != 1){
+				data[i][k][0] = 1;
+				data[i][k][1] = data_to_use[i][k][1];
+				data[i][k][2] = data_to_use[i][k][2];
+				data[i][k][3] = data_to_use[i][k][3];
+				data[i][k][4] = data_to_use[i][k][4];
+				data[i][k][5] = data_to_use[i][k][5];
+			} else{
+				data[i][k][0] = 0;
+			}
+		}
+	}
+}
+
+// goes through all the data and shows only data with tags in the array tags_to_show
+function filter_by_tag(){
+	for(var k = 0; k < data[data.length - 1].length; k++){
+		if(data[data.length - 1][k].length != 1){
+			if(tags_to_show.indexOf(data[data.length - 1][k][2]) == -1){
+				data[data.length - 1][k][0] = 0;
+			}
+		}
+	}
+}
+
+
+// goes through the data and removes all data that is not supposed to be shown
+function remove_empty_sections(){
+	var to_remove = [];
+	for(var i = 0; i < data[data.length - 1].length; i++){
+		if(data[data.length - 1][i][0] == 0){
+			to_remove.push(i); 
+		}
+	}
+	while(to_remove.length > 0){
+		var removing = to_remove.pop();
+		for(var j = 0; j < data.length; j++){
+			data[j].splice(removing, 1);
+		}
+	}
+}
+
+// return the color used for the vis in rgb form. second variables is weather or not a term is being dulled
+function get_color(group, highlight){
+	var color = color_group[group];
+	
+	var red = 0;
+	var blue = 0;
+	var green = 0;
+	var a = 1;
+	
+	if(color == null){
+		red = 100;
+		blue = 100;
+		green = 100;
+		a = 1;
+		console.log(group);
+	} else{
+		red = color[0];
+		green = color[1];
+		blue = color[2];
+	}
+	if(!highlight){
+		a = .5;
+	}
+	return "rgba(" + red + "," + green + "," + blue + "," + a + ")";
+}
+
+// shows only the emails of the correct length
+function filter_by_length(){
+	var to_hide = [];
+	for(var i = 0; i < data[0].length; i++){
+		var length = 0;
+		for(var k = 0; k < data.length; k++){
+			length += data[k][i][0];
+		}
+		if(length < min_length || length > max_length){
+			to_hide.push(i); 
+		}
+	}
+	while(to_hide.length > 0){
+		var removing = to_hide.pop();
+		data[data.length - 1][removing][0] = 0;
+	}
+}
+
+// shows only the emails of the correct subgroups
+function filter_by_subgroup(){
+	for(var i = 0; i < data[data.length - 1].length ; i++){
+		if(data[data.length - 1][i].length != 1){
+			if(subgroups_to_show.indexOf(data[data.length - 1][i][3]) < 0){
+				data[data.length - 1][i][0] = 0;
+			}
+		}
+	}
+}
+
+function filter_by_time(){
+	for(var i = 0; i < data[data.length - 1].length ; i++){
+		if(data[data.length - 1][i].length != 1){
+			if(!(data[data.length - 1][i][6] < time_max && data[data.length - 1][i][6] > time_min)){
+				data[data.length - 1][i][0] = 0;
+			}
+		}
+	}
+}
+
+// function called when a UI field changes
+function changeIt(){
+	
+	tags_to_show = [];
+	subgroups_to_show = [];
+
+	
+	var groups = document.forms[0]["subgroup_to_show"];
+	for (i = 0 ; i < groups.length ; i++) {
+		if(groups[i].checked){
+			subgroups_to_show.push(groups[i]['value']);
+		}
+	}
+	var tags = document.forms[0]["tag_to_show"];
+	for (j = 0 ; j < tags.length ; j++) {
+		if(tags[j].checked){
+			tags_to_show.push(tags[j]['value']);
+		}
+	}
+	
+	console.log(min_length);
+	console.log(max_length);
+	
+	min_length = $("#valueA").val();
+	max_length = $("#valueB").val();
+	
+	console.log(min_length);
+	console.log(max_length);
+	
+	var ways = document.forms[0]["way_to_group"];
+	var way = ways[0];
+	
+	if((way.checked && way['value'] == 'normal') || (!way.checked && way['value'] == 'ordered')){
+		order = false;
+	} else{
+		order = true;
+	}
+	
+	render_vis();
+}
+
+</script>
+				</div>
+			</TD>
+			<TD VALIGN=TOP>
+				<FORM>
+					<table>
+						<tr>
+							<td>Tags</td>
+						</tr>
+						<tr>
+							<td VALIGN=TOP>
+								<INPUT TYPE="checkbox" name="tag_to_show" value="job" checked onclick="changeIt();"/>job<BR>
+								<INPUT TYPE="checkbox" name="tag_to_show" value="announcement" checked onclick="changeIt();"/>announcement<BR>
+								<INPUT TYPE="checkbox" name="tag_to_show" value="spam" checked onclick="changeIt();"/>spam<BR>
+								<INPUT TYPE="checkbox" name="tag_to_show" value="article" checked onclick="changeIt();"/>article<BR>
+							</td>
+							<td VALIGN=TOP>
+								<INPUT TYPE="checkbox" name="tag_to_show" value="advice/suggestion" checked onclick="changeIt();"/>advice/suggestion<BR>
+								<INPUT TYPE="checkbox" name="tag_to_show" value="food" checked onclick="changeIt();"/>food<BR>
+								<INPUT TYPE="checkbox" name="tag_to_show" value="academic" checked onclick="changeIt();"/>academic<BR>
+							</td>
+						</tr>
+						<tr>
+							<td>Groups</td>
+						</tr>
+						<tr>
+							<td VALIGN=TOP>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="Undergrad" checked onclick="changeIt();"/>Undergrad<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="PhD" checked onclick="changeIt();"/>PhD<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="HCI" checked onclick="changeIt();"/>HCI<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="SC" checked onclick="changeIt();"/>SC<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="LIS" checked onclick="changeIt();"/>LIS<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="ARM" checked onclick="changeIt();"/>ARM<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="PI" checked onclick="changeIt();"/>PI<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="CI" checked onclick="changeIt();"/>CI<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="IPOL" checked onclick="changeIt();"/>IPOL<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="TAL" checked onclick="changeIt();"/>TAL<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="IAR" checked onclick="changeIt();"/>IAR<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="HI" checked onclick="changeIt();"/>HI<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="IEM" checked onclick="changeIt();"/>IEM<BR>
+							</td>
+							<td VALIGN=TOP>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="Staff" checked onclick="changeIt();"/>Staff<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="Faculty" checked onclick="changeIt();"/>Faculty<BR>
+							</td>
+							<td VALIGN=TOP>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="Alumni" checked onclick="changeIt();"/>Alumni<BR>
+								<INPUT TYPE="checkbox" name="subgroup_to_show" value="Other" checked onclick="changeIt();"/>Other<BR>
+							</td>
+						</tr>
+						<tr>
+							<td>Ordering</td>
+						</tr>
+						<tr>
+							<td>
+								<INPUT TYPE="radio" name="way_to_group" value="normal" checked onchange="changeIt();"/>Chronological<BR>
+								<INPUT TYPE="radio" name="way_to_group" value="ordered" onchange="changeIt();"/>By group<BR>
+							</td>
+						</tr>
+					</table>
+						<div style="width:600px">
+							<div>Thread Length</div>
+							<fieldset>
+								<label for="valueA">From:</label>
+								<select name="valueA" id="valueA" onchange="changeIt();">
+										<option value="1" selected="selected">1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="6">6</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="10">10</option>
+										<option value="11">11</option>
+										<option value="12">12</option>
+										<option value="13">13</option>
+										<option value="14">14</option>
+										<option value="15">15</option>
+										<option value="16">16</option>
+										<option value="17">17</option>
+										<option value="18">18</option>
+										<option value="19">19</option>
+										<option value="20">20</option>
+										<option value="21">21</option>
+										<option value="22">22</option>
+										<option value="23">23</option>
+										<option value="24">24</option>
+										<option value="25">25</option>
+										<option value="26">26</option>
+										<option value="27">27</option>
+										<option value="28">28</option>
+										<option value="29">29</option>
+										<option value="30">30</option>
+								</select>
+								<label for="valueB">To:</label>
+								<select name="valueB" id="valueB" onchange="changeIt();">
+										<option value="1">1</option>
+										<option value="2">2</option>
+										<option value="3">3</option>
+										<option value="4">4</option>
+										<option value="5">5</option>
+										<option value="6">6</option>
+										<option value="7">7</option>
+										<option value="8">8</option>
+										<option value="9">9</option>
+										<option value="10">10</option>
+										<option value="11">11</option>
+										<option value="12">12</option>
+										<option value="13">13</option>
+										<option value="14">14</option>
+										<option value="15">15</option>
+										<option value="16">16</option>
+										<option value="17">17</option>
+										<option value="18">18</option>
+										<option value="19">19</option>
+										<option value="20">20</option>
+										<option value="21">21</option>
+										<option value="22">22</option>
+										<option value="23">23</option>
+										<option value="24">24</option>
+										<option value="25">25</option>
+										<option value="26">26</option>
+										<option value="27">27</option>
+										<option value="28">28</option>
+										<option value="29">29</option>
+										<option value="30" selected="selected">30</option>
+								</select>
+							</fieldset>
+							
+							<!--div>Timeframe</div>
+
+							<fieldset>
+								<label for="valueAA">From:</label>
+								<select name="valueAA" id="valueAA">
+										<option value="01/03/11">Jan 03</option>
+										<option value="02/03/11">Feb 03</option>
+										<option value="03/03/11">Mar 03</option>
+										<option value="04/03/11">Apr 03</option>
+										<option value="07/03/11" selected="selected">May 03</option>
+										<option value="07/03/11">Jun 03</option>
+										<option value="07/03/11">Jul 03</option>
+										<option value="08/03/11">Aug 03</option>
+										<option value="09/03/11">Sep 03</option>
+										<option value="10/03/11">Oct 03</option>
+										<option value="11/03/11">Nov 03</option>
+										<option value="12/03/11">Dec 03</option>
+								</select>
+								<label for="valueBB">To:</label>
+								<select name="valueBB" id="valueBB">
+										<option value="01/03/11">Jan 03</option>
+										<option value="02/03/11">Feb 03</option>
+										<option value="03/03/11">Mar 03</option>
+										<option value="04/03/11">Apr 03</option>
+										<option value="07/03/11">May 03</option>
+										<option value="07/03/11">Jun 03</option>
+										<option value="07/03/11">Jul 03</option>
+										<option value="08/03/11" selected="selected">Aug 03</option>
+										<option value="09/03/11">Sep 03</option>
+										<option value="10/03/11">Oct 03</option>
+										<option value="11/03/11">Nov 03</option>
+										<option value="12/03/11">Dec 03</option>
+								</select>
+							</fieldset -->
+						</div>
+					</FORM>
+				</table>
+			</TD>
+		</TR>
+	</TABLE>
+	<address></address>
+</body>
+</html>

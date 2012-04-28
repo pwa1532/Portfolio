@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<link rel="stylesheet" href="/static/style.css"/>
+		<link rel="shortcut icon" href="static/favicon.ico" />
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+		<title>Peter Andrews - {% block title %}Replace this{% endblock %}</title>
+		<script type="text/javascript">
+
+			var _gaq = _gaq || [];
+			_gaq.push(['_setAccount', 'UA-29445227-1']);
+			_gaq.push(['_trackPageview']);
+
+			(function() {
+				var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+				ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+			})();
+
+		</script>
+		<link href="http://vjs.zencdn.net/c/video-js.css" rel="stylesheet">
+		<script src="http://vjs.zencdn.net/c/video.js"></script>
+	</head>
+	<body>
+		<div id="center_content">
+			<div id="header">
+				<div>
+					<h1 class="my_name green"><a href="/index.html">Peter Andrews</a></h1>
+					<h1 class="sub_header" id="sub_header">User Experience Designer</h1>
+					<div class="clear"></div>
+				</div>
+			</div>
+			<div id="subNav">
+					<ul id="mainNav">
+						<li><a href="/projects.html" {% ifequal path '/projects.html' %}class="selected" {% endifequal %}>Projects</a></li>
+						<li><a href="/contact.html" {% ifequal path '/contact.html' %}class="selected" {% endifequal %}>Contact</a></li>
+						<li><a href="/about.html" {% ifequal path '/about.html' %}class="selected" {% endifequal %}>About</a></li>
+					</ul>
+					<hr/>
+					{% ifequal path '/projects.html' %}
+					<ul id="projectNav">
+						<li id="all">All Experience</li>
+						<li id="design">Designing Experience</li>
+						<li id="development">Developing Prototypes</li>
+						<li id="evaluation">Evaluating Usability</li>
+					</ul>
+					{% endifequal %}
+			</div>
+			<div id="page_content">
+				{% block bodycontent %}
+					Replace this
+				{% endblock %}
+			</div>
+
+		</div>
+		<script src="static/javascript.js"></script>
+	</body>
+</html>
+<!--{{name}} is hoe you echo variables sent to it-->
